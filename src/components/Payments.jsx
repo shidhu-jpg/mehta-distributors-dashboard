@@ -9,7 +9,13 @@ function formatINR(n) {
 function formatDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
-  return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function formatDateTime(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return d.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
 const STATUS_BADGE = {
@@ -123,7 +129,14 @@ export default function Payments() {
                     const isDirty = editing[p.id] !== undefined && editing[p.id] !== String(p.amount_paid);
                     return (
                       <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                        <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{p.retailer_name}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <p className="font-medium text-gray-900">{p.retailer_name}</p>
+                          {(p.updated_at || p.created_at) && (
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {p.updated_at ? 'Paid on' : 'Added on'} {formatDateTime(p.updated_at || p.created_at)}
+                            </p>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-gray-600">{formatINR(p.total_order_value)}</td>
                         <td className="px-4 py-3 text-gray-600">{formatINR(p.amount_paid)}</td>
                         <td className="px-4 py-3 font-medium text-red-600">{formatINR(p.outstanding_due)}</td>

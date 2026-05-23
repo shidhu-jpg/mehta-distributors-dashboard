@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const UNITS   = ['boxes', 'units', 'cartons'];
 
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
 function stockStatus(qty) {
   if (qty === 0) return { label: 'Out of Stock', cls: 'bg-red-100 text-red-700',    rowCls: 'bg-red-50/60' };
   if (qty < 20)  return { label: 'Low Stock',    cls: 'bg-orange-100 text-orange-700', rowCls: 'bg-orange-50/60' };
@@ -164,7 +169,14 @@ export default function Inventory() {
                     const isDirty = editing[p.id] !== undefined && editing[p.id] !== String(p.stock_quantity);
                     return (
                       <tr key={p.id} className={`border-b border-gray-50 transition-colors ${s.rowCls}`}>
-                        <td className="px-4 py-3 font-medium text-gray-900">{p.product_name}</td>
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-gray-900">{p.product_name}</p>
+                          {(p.updated_at || p.created_at) && (
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {p.updated_at ? 'Stock updated' : 'Added'} {formatDate(p.updated_at || p.created_at)}
+                            </p>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-gray-600">{p.category}</td>
                         <td className="px-4 py-3 text-gray-600">{p.stock_quantity}</td>
                         <td className="px-4 py-3 text-gray-500 capitalize">{p.unit}</td>
