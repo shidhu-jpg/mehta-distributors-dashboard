@@ -38,8 +38,8 @@ export default function LedgerModal({ payment, onClose, onPaymentUpdated }) {
     setLoading(true);
     fetch(`${API_URL}/api/payments/${payment.id}/transactions`)
       .then((r) => r.json())
-      .then(setTransactions)
-      .catch(console.error)
+      .then((data) => setTransactions(Array.isArray(data) ? data : []))
+      .catch(() => setTransactions([]))
       .finally(() => setLoading(false));
   }, [payment?.id]);
 

@@ -1,5 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Component } from 'react';
 import LedgerModal from './LedgerModal';
+
+class LedgerErrorBoundary extends Component {
+  state = { crashed: false };
+  static getDerivedStateFromError() { return { crashed: true }; }
+  render() {
+    if (this.state.crashed) return null;
+    return this.props.children;
+  }
+}
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -196,13 +205,15 @@ export default function Payments() {
       </div>
     </div>
 
-    {selectedPayment && (
-      <LedgerModal
-        payment={selectedPayment}
-        onClose={() => setSelectedPayment(null)}
-        onPaymentUpdated={handlePaymentUpdated}
-      />
-    )}
+    <LedgerErrorBoundary>
+      {selectedPayment && (
+        <LedgerModal
+          payment={selectedPayment}
+          onClose={() => setSelectedPayment(null)}
+          onPaymentUpdated={handlePaymentUpdated}
+        />
+      )}
+    </LedgerErrorBoundary>
     </>
   );
 }
