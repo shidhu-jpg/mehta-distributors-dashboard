@@ -40,6 +40,7 @@ export default function Payments() {
   const [editing,          setEditing]          = useState({}); // id → amount string
   const [saving,           setSaving]           = useState(null);
   const [selectedPayment,  setSelectedPayment]  = useState(null);
+  const [ledgerRefreshKey, setLedgerRefreshKey] = useState(0);
 
   const loadPayments = () => {
     setLoading(true);
@@ -66,6 +67,11 @@ export default function Payments() {
       const updated = await res.json();
       setPayments((prev) => prev.map((x) => x.id === id ? updated : x));
       setEditing((e) => { const next = { ...e }; delete next[id]; return next; });
+      // If this retailer's ledger is open, refresh it
+      if (selectedPayment?.id === id) {
+        setSelectedPayment(updated);
+        setLedgerRefreshKey((k) => k + 1);
+      }
     } catch {
       alert('Failed to update payment.');
     } finally {
@@ -211,6 +217,7 @@ export default function Payments() {
           payment={selectedPayment}
           onClose={() => setSelectedPayment(null)}
           onPaymentUpdated={handlePaymentUpdated}
+          refreshKey={ledgerRefreshKey}
         />
       )}
     </LedgerErrorBoundary>

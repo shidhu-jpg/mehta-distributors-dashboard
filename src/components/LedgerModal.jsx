@@ -25,7 +25,7 @@ const STATUS_BADGE = {
   Overdue: 'bg-red-100 text-red-700',
 };
 
-export default function LedgerModal({ payment, onClose, onPaymentUpdated }) {
+export default function LedgerModal({ payment, onClose, onPaymentUpdated, refreshKey }) {
   const [transactions, setTransactions] = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [amount,       setAmount]       = useState('');
@@ -41,7 +41,7 @@ export default function LedgerModal({ payment, onClose, onPaymentUpdated }) {
       .then((data) => setTransactions(Array.isArray(data) ? data : []))
       .catch(() => setTransactions([]))
       .finally(() => setLoading(false));
-  }, [payment?.id]);
+  }, [payment?.id, refreshKey]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
