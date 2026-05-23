@@ -92,6 +92,7 @@ export default function Payments() {
   const totalCollected   = payments.reduce((s, p) => s + Number(p.amount_paid || 0), 0);
 
   return (
+    <>
     <div className="space-y-5">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -202,5 +203,6 @@ export default function Payments() {
         onPaymentUpdated={handlePaymentUpdated}
       />
     )}
+    </>
   );
 }
