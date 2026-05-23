@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import LedgerModal from './LedgerModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -25,10 +26,11 @@ const STATUS_BADGE = {
 };
 
 export default function Payments() {
-  const [payments, setPayments] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [editing,  setEditing]  = useState({}); // id → amount string
-  const [saving,   setSaving]   = useState(null);
+  const [payments,         setPayments]         = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [editing,          setEditing]          = useState({}); // id → amount string
+  const [saving,           setSaving]           = useState(null);
+  const [selectedPayment,  setSelectedPayment]  = useState(null);
 
   const loadPayments = () => {
     setLoading(true);
@@ -81,6 +83,11 @@ export default function Payments() {
     }
   };
 
+  const handlePaymentUpdated = (updated) => {
+    setPayments((prev) => prev.map((p) => p.id === updated.id ? updated : p));
+    setSelectedPayment(updated);
+  };
+
   const totalOutstanding = payments.reduce((s, p) => s + Number(p.outstanding_due || 0), 0);
   const totalCollected   = payments.reduce((s, p) => s + Number(p.amount_paid || 0), 0);
 
@@ -130,7 +137,12 @@ export default function Payments() {
                     return (
                       <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <p className="font-medium text-gray-900">{p.retailer_name}</p>
+                          <button
+                            onClick={() => setSelectedPayment(p)}
+                            className="font-medium text-primary hover:underline text-left"
+                          >
+                            {p.retailer_name}
+                          </button>
                           {(p.updated_at || p.created_at) && (
                             <p className="text-xs text-gray-400 mt-0.5">
                               {p.updated_at ? 'Paid on' : 'Added on'} {formatDateTime(p.updated_at || p.created_at)}
@@ -182,5 +194,13 @@ export default function Payments() {
         </div>
       </div>
     </div>
+
+    {selectedPayment && (
+      <LedgerModal
+        payment={selectedPayment}
+        onClose={() => setSelectedPayment(null)}
+        onPaymentUpdated={handlePaymentUpdated}
+      />
+    )}
   );
 }
